@@ -1,131 +1,111 @@
+// src/components/TodoItem.js
+
 import React, { useState } from "react";
 
-const TodoItem = ({ todo, onToggleCompleted, onDeleteTodo, onUpdateTodo }) => {
+const TodoItem = ({ index, todo, onToggleCompleted, onDeleteTodo, onUpdateTodo }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [newTask, setNewTask] = useState(todo.task);
+  const [editedText, setEditedText] = useState(todo.task);
 
-  const handleUpdate = () => {
-    if (newTask.trim() !== "") {
-      onUpdateTodo(todo.id, newTask);
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    if (editedText.trim() !== "") {
+      onUpdateTodo(todo.id, editedText);
       setIsEditing(false);
     }
   };
 
+  const handleCancel = () => {
+    setEditedText(todo.task);
+    setIsEditing(false);
+  };
+
   return (
-    <li
-      style={{
-        marginBottom: "10px",
-        border: "1px solid white",
-        padding: "10px",
-        borderRadius: "8px",
-        backgroundColor: todo.completed ? "#2d3d3d" : "transparent",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-          justifyContent: "space-between",
-        }}
-      >
+    <tr>
+      <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+        {index}
+      </td>
+      <td style={{ border: "1px solid #ccc", padding: "8px" }}>
         {isEditing ? (
           <input
             type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            style={{ flex: 1, marginRight: "10px", padding: "5px" }}
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            style={{ width: "100%", padding: "5px" }}
           />
         ) : (
-          <h3
-            style={{
-              margin: 0,
-              textDecoration: todo.completed ? "line-through" : "none",
-            }}
-          >
-            {todo.task}
-          </h3>
+          todo.task
         )}
-
-        <div style={{ display: "flex", gap: "5px" }}>
-          {isEditing ? (
-            <>
-              <button
-                onClick={handleUpdate}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "4px",
-                  backgroundColor: "lightblue",
-                  color: "#282c34",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Simpan
-              </button>
-              <button
-                onClick={() => setIsEditing(false)}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "4px",
-                  backgroundColor: "gray",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Batal
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => onToggleCompleted(todo.id, todo.completed)}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "4px",
-                  backgroundColor: todo.completed ? "salmon" : "lightgreen",
-                  color: "#282c34",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {todo.completed ? "Belum Selesai" : "Selesai"}
-              </button>
-              <button
-                onClick={() => setIsEditing(true)}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "4px",
-                  backgroundColor: "gold",
-                  color: "#282c34",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Update
-              </button>
-              <button
-                onClick={() => onDeleteTodo(todo.id)}
-                style={{
-                  padding: "5px 10px",
-                  borderRadius: "4px",
-                  backgroundColor: "tomato",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Hapus
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </li>
+      </td>
+      <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+        {todo.completed ? "Selesai" : "Belum Selesai"}
+      </td>
+      <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+        {isEditing ? (
+          <>
+            <button
+              onClick={handleSave}
+              style={{
+                marginRight: "5px",
+                backgroundColor: "lightgreen",
+                border: "none",
+                padding: "5px 10px",
+              }}
+            >
+              Simpan
+            </button>
+            <button
+              onClick={handleCancel}
+              style={{
+                backgroundColor: "salmon",
+                border: "none",
+                padding: "5px 10px",
+              }}
+            >
+              Batal
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={handleEdit}
+              style={{
+                marginRight: "5px",
+                backgroundColor: "#61dafb",
+                border: "none",
+                padding: "5px 10px",
+              }}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onToggleCompleted(todo.id, todo.completed)}
+              style={{
+                marginRight: "5px",
+                backgroundColor: todo.completed ? "orange" : "lightgreen",
+                border: "none",
+                padding: "5px 10px",
+              }}
+            >
+              {todo.completed ? "Belum Selesai" : "Selesai"}
+            </button>
+            <button
+              onClick={() => onDeleteTodo(todo.id)}
+              style={{
+                backgroundColor: "tomato",
+                border: "none",
+                padding: "5px 10px",
+                color: "white",
+              }}
+            >
+              Hapus
+            </button>
+          </>
+        )}
+      </td>
+    </tr>
   );
 };
 

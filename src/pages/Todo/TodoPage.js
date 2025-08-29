@@ -1,33 +1,43 @@
-import React, { useState, useEffect } from "react";
-import TodoForm from "../../components/TodoForm.js";
+// src/pages/TodoPage.js
+import React, { useState, useEffect, useCallback } from "react";
 import TodoList from "../../components/TodoList.js";
+import SearchInput from "../../components/SearchInput.js";
 
 const TodoPage = () => {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchTodos = () => {
-    fetch("/api/todos")
+  const fetchTodos = useCallback((searchQuery) => {
+    setLoading(true);
+    const url = searchQuery
+      ? `/api/todos?search=${encodeURIComponent(searchQuery)}`
+      : "/api/todos";
+
+    fetch(url)
       .then((response) => {
-        if (!response.ok) {
+        if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
-        }
         return response.json();
       })
       .then((data) => {
         setTodos(data.todos);
-        setLoading(false);
+        setError(null);
       })
       .catch((err) => {
         setError(err.message);
-        setLoading(false);
-      });
-  };
+        setTodos([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
-    fetchTodos();
-  }, []);
+    const timerId = setTimeout(() => {
+      fetchTodos(searchTerm);
+    }, 500);
+    return () => clearTimeout(timerId);
+  }, [searchTerm, fetchTodos]);
 
   const handleAddTodo = (task) => {
     fetch("/api/todos", {
@@ -39,7 +49,10 @@ const TodoPage = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setTodos([...todos, { id: data.id, task: data.task, completed: false }]);
+        setTodos([
+          ...todos,
+          { id: data.id, task: data.task, completed: false },
+        ]);
       })
       .catch((err) => console.error("Error adding todo:", err));
   };
@@ -52,6 +65,30 @@ const TodoPage = () => {
         setTodos(todos.filter((todo) => todo.id !== id));
       })
       .catch((err) => console.error("Error deleting todo:", err));
+  };
+
+  const handleUpdateTodo = (id, newTask) => {
+    fetch(`/api/todos/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ task: newTask }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(() => {
+        setTodos(
+          todos.map((todo) =>
+            todo.id === id ? { ...todo, task: newTask } : todo
+          )
+        );
+      })
+      .catch((err) => console.error("Error updating todo:", err));
   };
 
   const handleToggleCompleted = (id, completed) => {
@@ -72,24 +109,6 @@ const TodoPage = () => {
       .catch((err) => console.error("Error updating todo:", err));
   };
 
-  const handleUpdateTodo = (id, newTask) => {
-    fetch(`/api/todos/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ task: newTask }),
-    })
-      .then(() => {
-        setTodos(
-          todos.map((todo) =>
-            todo.id === id ? { ...todo, task: newTask } : todo
-          )
-        );
-      })
-      .catch((err) => console.error("Error updating todo:", err));
-  };
-
   if (loading) {
     return <div style={{ textAlign: "center" }}>Loading...</div>;
   }
@@ -104,22 +123,41 @@ const TodoPage = () => {
     <div
       style={{
         padding: "20px",
-        maxWidth: "800px",
+        maxWidth: "900px",
         margin: "0 auto",
         fontFamily: "sans-serif",
       }}
     >
-      <header style={{ textAlign: "center" }}>
-        <h1>Aplikasi Todo List</h1>
-        <TodoForm onAddTodo={handleAddTodo} />
-        <h2>Daftar Tugas Anda</h2>
-        <TodoList
-          todos={todos}
-          onToggleCompleted={handleToggleCompleted}
-          onDeleteTodo={handleDeleteTodo}
-          onUpdateTodo={handleUpdateTodo}  
-        />
+      <header style={{ marginBottom: "20px" }}>
+        <h1 style={{ marginBottom: "15px" }}>Manajemen Tugas</h1>
+
+        <button
+          onClick={() => {
+            const task = prompt("Masukkan tugas baru:");
+            if (task) handleAddTodo(task);
+          }}
+          style={{
+            backgroundColor: "blue",
+            color: "white",
+            border: "none",
+            padding: "8px 15px",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginBottom: "15px",
+          }}
+        >
+          Tambah
+        </button>
+
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </header>
+
+      <TodoList
+        todos={todos}
+        onToggleCompleted={handleToggleCompleted}
+        onDeleteTodo={handleDeleteTodo}
+        onUpdateTodo={handleUpdateTodo}
+      />
     </div>
   );
 };
