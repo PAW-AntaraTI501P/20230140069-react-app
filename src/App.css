@@ -1,38 +1,88 @@
-.App {
-  text-align: center;
-}
+/* src/App.css */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
+/* Mengatur tema dasar untuk seluruh halaman */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Warna latar belakang utama (dark gray) */
   background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  /* Warna teks utama (putih) */
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Mengatur layout untuk kontainer halaman */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Mengatur gaya untuk elemen teks */
+h1, h2 {
+  color: #fff;
+}
+
+p {
+  color: #bbb;
+}
+
+/* Mengatur gaya untuk tombol dan tautan yang terlihat seperti tombol */
+button, .button-link {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  margin-top: 20px;
+  background-color: #61dafb; /* Biru terang */
+  color: #282c34; /* Warna teks gelap */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none; /* Menghilangkan garis bawah pada tautan */
+  transition: background-color 0.3s ease;
+}
+
+/* Efek hover untuk tombol */
+button:hover, .button-link:hover {
+  background-color: #4fa3d1; /* Warna biru yang sedikit lebih gelap saat dihover */
+}
+
+/* Mengatur gaya untuk formulir dan input */
+form {
+  margin: 20px auto;
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #383c44;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #eee;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: calc(100% - 16px);
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+}
+
+/* Gaya khusus untuk pesan error */
+.error-message {
+  color: #ff6b6b;
+  margin-bottom: 10px;
 }

@@ -1,21 +1,27 @@
 // src/App.js
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home/HomePage";
 import TodoPage from "./pages/Todo/TodoPage";
+import LoginPage from "./pages/Login/LoginPage";
+import RegisterPage from "./pages/Register/RegisterPage";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 import "./App.css";
 
 function App() {
-  
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/todos" element={<TodoPage />} />
-      </Routes>
-    </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                {/* Use ProtectedRoute for protected routes */}
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/todos" element={<TodoPage />} />
+                </Route>
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;

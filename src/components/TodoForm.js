@@ -26,7 +26,7 @@ const TodoForm = ({ onAddTodo }) => {
         borderRadius: "8px",
       }}
     >
-      <h2>Tambah Todo Baru</h2>
+      <h2>Tambah Tugas Baru</h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "10px" }}

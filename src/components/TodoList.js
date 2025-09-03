@@ -3,12 +3,13 @@
 import React from "react";
 import TodoItem from "./TodoItem";
 
-const TodoList = ({ todos, onToggleCompleted, onDeleteTodo, onUpdateTodo }) => {
-  if (todos.length === 0) {
-    return <p>Tidak ada tugas yang ditemukan. Silakan tambahkan satu.</p>;
+const TodoList = ({ todos = [], onToggleCompleted, onDeleteTodo, onUpdateTodo }) => {
+  // Jika todos kosong atau undefined
+  if (!todos || todos.length === 0) {
+    return <p style={{ marginTop: "20px" }}>Tidak ada tugas yang ditemukan. Silakan tambahkan satu.</p>;
   }
 
-    return (
+  return (
     <table
       style={{
         width: "100%",
@@ -40,5 +41,5 @@ const TodoList = ({ todos, onToggleCompleted, onDeleteTodo, onUpdateTodo }) => {
   );
 };
 
-
 export default TodoList;
+

@@ -1,7 +1,10 @@
 // src/pages/TodoPage.js
+
 import React, { useState, useEffect, useCallback } from "react";
 import TodoList from "../../components/TodoList.js";
 import SearchInput from "../../components/SearchInput.js";
+import TodoForm from "../../components/TodoForm.js"; 
+//import axios from "axios";// ✅ Tambahkan import komponen form
 
 const TodoPage = () => {
   const [todos, setTodos] = useState([]);
@@ -9,28 +12,43 @@ const TodoPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchTodos = useCallback((searchQuery) => {
-    setLoading(true);
-    const url = searchQuery
-      ? `/api/todos?search=${encodeURIComponent(searchQuery)}`
-      : "/api/todos";
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+  };
 
-    fetch(url)
-      .then((response) => {
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-      })
-      .then((data) => {
-        setTodos(data.todos);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setTodos([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchTodos = useCallback(
+    (searchQuery) => {
+      setLoading(true);
+      const url = searchQuery
+        ? `/api/todos?search=${encodeURIComponent(searchQuery)}`
+        : "/api/todos";
+
+      fetch(url, { headers: getAuthHeaders() })
+        .then((response) => {
+          if (response.status === 401) {
+            throw new Error("Anda harus login untuk mengakses halaman ini.");
+          }
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setTodos(data.todos);
+          setError(null);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setTodos([]);
+        })
+        .finally(() => setLoading(false));
+    },
+    [] // ✅ Mengubah dependency array menjadi kosong
+  );
 
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -39,20 +57,16 @@ const TodoPage = () => {
     return () => clearTimeout(timerId);
   }, [searchTerm, fetchTodos]);
 
+  // ✅ Fungsi ini akan dipanggil dari TodoForm
   const handleAddTodo = (task) => {
     fetch("/api/todos", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ task }),
     })
       .then((response) => response.json())
       .then((data) => {
-        setTodos([
-          ...todos,
-          { id: data.id, task: data.task, completed: false },
-        ]);
+        setTodos([...todos, { id: data.id, task: data.task, completed: false }]);
       })
       .catch((err) => console.error("Error adding todo:", err));
   };
@@ -60,6 +74,7 @@ const TodoPage = () => {
   const handleDeleteTodo = (id) => {
     fetch(`/api/todos/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     })
       .then(() => {
         setTodos(todos.filter((todo) => todo.id !== id));
@@ -70,9 +85,7 @@ const TodoPage = () => {
   const handleUpdateTodo = (id, newTask) => {
     fetch(`/api/todos/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ task: newTask }),
     })
       .then((response) => {
@@ -94,9 +107,7 @@ const TodoPage = () => {
   const handleToggleCompleted = (id, completed) => {
     fetch(`/api/todos/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ completed: !completed }),
     })
       .then(() => {
@@ -130,24 +141,9 @@ const TodoPage = () => {
     >
       <header style={{ marginBottom: "20px" }}>
         <h1 style={{ marginBottom: "15px" }}>Manajemen Tugas</h1>
-
-        <button
-          onClick={() => {
-            const task = prompt("Masukkan tugas baru:");
-            if (task) handleAddTodo(task);
-          }}
-          style={{
-            backgroundColor: "blue",
-            color: "white",
-            border: "none",
-            padding: "8px 15px",
-            borderRadius: "5px",
-            cursor: "pointer",
-            marginBottom: "15px",
-          }}
-        >
-          Tambah
-        </button>
+        
+        {/* ✅ Ganti tombol prompt dengan komponen TodoForm */}
+        <TodoForm onAddTodo={handleAddTodo} />
 
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </header>
